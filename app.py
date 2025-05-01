@@ -45,9 +45,18 @@ city_data = shap_df[shap_df['Kabupaten/Kota'] == selected_city].iloc[0]
 st.write(f"**Fitur Dominan:** {city_data['Fitur Dominan']}")
 st.write(f"**Nilai SHAP:** {city_data['Nilai SHAP']:.2f}")
 
-if city_data['Nilai SHAP'] > 0:
-    st.success("✅ Fitur ini berperan **mendorong** IPM kota tersebut.")
-elif city_data['Nilai SHAP'] < 0:
+shap_value = city_data['Nilai SHAP']
+
+if shap_value < 0:
     st.error("⚠️ Fitur ini berperan **menghambat** IPM kota tersebut.")
-else:
+elif shap_value == 0:
     st.info("ℹ️ Fitur ini tidak terlalu berpengaruh/tidak signifikan.")
+else:
+    if shap_value < 1.0:
+        st.success("✅ Fitur ini berperan **sedikit mendorong** IPM kota tersebut.")
+    elif shap_value < 1.5:
+        st.success("✅ Fitur ini berperan **cukup mendorong** IPM kota tersebut.")
+    elif shap_value < 2.0:
+        st.success("✅ Fitur ini berperan **berperan tinggi mendorong** IPM kota tersebut.")
+    else:
+        st.success("✅ Fitur ini berperan **sangat mendorong** IPM kota tersebut.")
