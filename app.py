@@ -50,4 +50,4 @@ if city_data['Nilai SHAP'] > 0:
 elif city_data['Nilai SHAP'] < 0:
     st.error("⚠️ Fitur ini berperan **menghambat** IPM kota tersebut.")
 else:
-    st.info("ℹ️ Fitur ini tidak terlalu berpengaruh.")
+    st.info("ℹ️ Fitur ini tidak terlalu berpengaruh/tidak signifikan.")
