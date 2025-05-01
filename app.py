@@ -1,14 +1,19 @@
-import streamlit as st
+import joblib
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import joblib
+import shap
+import streamlit as st
 
-# Load model dan scaler
+# Load model, scaler, dan data dominan fitur
 model = joblib.load("xgb_model.pkl")
-scaler = joblib.load("scaler.pkl")  # Jika menggunakan standard scaler
+scaler = joblib.load("scaler.pkl")
+shap_df = pd.read_excel("dominant_feature_summary.xlsx")
 
-st.set_page_config(page_title="Dashboard Prediksi IPM", layout="centered")
-st.title("📊 Prediksi Indeks Pembangunan Manusia (IPM)")
+st.set_page_config(page_title="Dashboard Prediksi & Analisis IPM", layout="wide")
+st.title("📊 Dashboard Prediksi & Analisis IPM")
+
+st.markdown("## Prediksi Indeks Pembangunan Manusia (IPM)")
 st.markdown("Masukkan nilai-nilai indikator berikut untuk memprediksi IPM:")
 
 # Sidebar untuk input fitur
@@ -30,3 +35,19 @@ if submit:
     pred = model.predict(input_scaled)
 
     st.success(f"🎯 Hasil Prediksi IPM: {pred[0]:.2f}")
+
+st.markdown("---")
+st.markdown("## 🔍 Analisis Faktor Dominan per Daerah")
+
+selected_city = st.selectbox("Pilih Kabupaten/Kota:", shap_df['Kabupaten/Kota'].unique())
+city_data = shap_df[shap_df['Kabupaten/Kota'] == selected_city].iloc[0]
+
+st.write(f"**Fitur Dominan:** {city_data['Fitur Dominan']}")
+st.write(f"**Nilai SHAP:** {city_data['Nilai SHAP']:.2f}")
+
+if city_data['Nilai SHAP'] > 0:
+    st.success("✅ Fitur ini berperan **mendorong** IPM kota tersebut.")
+elif city_data['Nilai SHAP'] < 0:
+    st.error("⚠️ Fitur ini berperan **menghambat** IPM kota tersebut.")
+else:
+    st.info("ℹ️ Fitur ini tidak terlalu berpengaruh.")
