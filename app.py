@@ -54,7 +54,7 @@ elif shap_value == 0:
 else:
     if shap_value < 2.0:
         st.success("✅ Fitur ini berperan **sedikit mendorong** IPM kota tersebut.")
-    elif shap_value < 2.2:
+    elif shap_value < 2.25:
         st.success("✅ Fitur ini berperan **cukup mendorong** IPM kota tersebut.")
     elif shap_value < 2.5:
         st.success("✅ Fitur ini berperan **berperan tinggi mendorong** IPM kota tersebut.")
