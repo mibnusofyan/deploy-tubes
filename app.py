@@ -2,6 +2,7 @@ import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import plotly.express as px
 import shap
 import streamlit as st
 
@@ -60,3 +61,23 @@ else:
         st.success("✅ Fitur ini berperan **berperan tinggi mendorong** IPM kota tersebut.")
     else:
         st.success("✅ Fitur ini berperan **sangat mendorong** IPM kota tersebut.")
+
+
+# Load data hasil prediksi
+df_forecast = pd.read_csv('forecast_ipm_2025_2030.csv')  # hasil dari prediksi ARIMA sebelumnya
+
+st.title("📊 Prediksi IPM Kabupaten/Kota (2025–2030)")
+
+# Pilih kabupaten
+selected_kab = st.selectbox("Pilih Kabupaten/Kota", sorted(df_forecast['Kabupaten'].unique()))
+
+# Filter data
+data_kab = df_forecast[df_forecast['Kabupaten'] == selected_kab]
+
+# Plot
+fig = px.line(data_kab, x='Tahun', y='Prediksi_IPM', title=f'Prediksi IPM {selected_kab} (2025–2030)', markers=True)
+st.plotly_chart(fig, use_container_width=True)
+
+# Tampilkan data
+st.subheader("Data Prediksi")
+st.dataframe(data_kab)
