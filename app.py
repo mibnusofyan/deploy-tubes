@@ -70,7 +70,7 @@ st.title("📊 Prediksi IPM Kabupaten/Kota (2025–2030)")
 # === Load Data ===
 @st.cache_data
 def load_data():
-    df = pd.read_csv("prediksi_ipm_2025_2030.csv")
+    df = pd.read_csv("forecast.csv")
     return df
 
 df_prediksi = load_data()
