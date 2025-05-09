@@ -73,6 +73,9 @@ selected_kab = st.selectbox("Pilih Kabupaten/Kota", sorted(df_forecast['Kabupate
 
 # Filter data
 data_kab = df_forecast[df_forecast['Kabupaten'] == selected_kab]
+st.write("Selected Kabupaten:", selected_kab)
+st.write("Filtered Data:", data_kab)
+st.write("Columns:", data_kab.columns)
 
 # Plot
 fig = px.line(data_kab, x='Tahun', y='Prediksi_IPM', title=f'Prediksi IPM {selected_kab} (2025 2030)', markers=True)
