@@ -64,9 +64,9 @@ else:
 
 
 # Load data hasil prediksi
-df_forecast = pd.read_csv('prediksi_ipm_2025_2030.csv')  # hasil dari prediksi ARIMA sebelumnya
+df_forecast = pd.read_csv('forecast.csv')
 
-st.title("📊 Prediksi IPM Kabupaten/Kota (2025–2030)")
+st.title("📊 Prediksi IPM Kabupaten/Kota (2025 2030)")
 
 # Pilih kabupaten
 selected_kab = st.selectbox("Pilih Kabupaten/Kota", sorted(df_forecast['Kabupaten'].unique()))
