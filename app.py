@@ -75,7 +75,7 @@ selected_kab = st.selectbox("Pilih Kabupaten/Kota", sorted(df_forecast['Kabupate
 data_kab = df_forecast[df_forecast['Kabupaten'] == selected_kab]
 
 # Plot
-fig = px.line(data_kab, x='Tahun', y='Prediksi_IPM', title=f'Prediksi IPM {selected_kab} (2025–2030)', markers=True)
+fig = px.line(data_kab, x='Tahun', y='Prediksi_IPM', title=f'Prediksi IPM {selected_kab} (2025 2030)', markers=True)
 st.plotly_chart(fig, use_container_width=True)
 
 # Tampilkan data
