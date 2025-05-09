@@ -64,7 +64,7 @@ else:
 
 
 # Load data hasil prediksi
-df_forecast = pd.read_csv('forecast_ipm_2025_2030.csv')  # hasil dari prediksi ARIMA sebelumnya
+df_forecast = pd.read_csv('prediksi_ipm_2025_2030.csv')  # hasil dari prediksi ARIMA sebelumnya
 
 st.title("📊 Prediksi IPM Kabupaten/Kota (2025–2030)")
 
