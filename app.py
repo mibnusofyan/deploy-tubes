@@ -62,10 +62,7 @@ else:
     else:
         st.success("✅ Fitur ini berperan **sangat mendorong** IPM kota tersebut.")
 
-# === Konfigurasi dasar ===
-st.set_page_config(page_title="Prediksi IPM 2025–2030", layout="wide")
-
-st.title("📊 Prediksi IPM Kabupaten/Kota (2025–2030)")
+st.title("📊 Prediksi IPM Kabupaten/Kota (2025 2030)")
 
 # === Load Data ===
 @st.cache_data
@@ -115,13 +112,13 @@ if data_long.empty:
     st.stop()
 
 # === Plot ===
-st.subheader(f"📈 Visualisasi Prediksi IPM 2025–2030: {selected_kab}")
+st.subheader(f"📈 Visualisasi Prediksi IPM 2025 2030: {selected_kab}")
 fig = px.line(
     data_long,
     x='Tahun',
     y='Prediksi_IPM',
     markers=True,
-    title=f'Prediksi IPM {selected_kab} (2025–2030)',
+    title=f'Prediksi IPM {selected_kab} (2025 2030)',
     labels={'Tahun': 'Tahun', 'Prediksi_IPM': 'Nilai IPM'}
 )
 st.plotly_chart(fig, use_container_width=True)
