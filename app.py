@@ -63,24 +63,42 @@ else:
         st.success("✅ Fitur ini berperan **sangat mendorong** IPM kota tersebut.")
 
 
-# Load data hasil prediksi
-df_forecast = pd.read_csv('forecast.csv')
+st.set_page_config(page_title="Prediksi IPM 2025 2030", layout="wide")
 
+# === Judul aplikasi ===
 st.title("📊 Prediksi IPM Kabupaten/Kota (2025 2030)")
 
-# Pilih kabupaten
-selected_kab = st.selectbox("Pilih Kabupaten/Kota", sorted(df_forecast['Kabupaten'].unique()))
+# === Load Data ===
+@st.cache_data
+def load_data():
+    df = pd.read_csv("forecast.csv")
+    return df
 
-# Filter data
-data_kab = df_forecast[df_forecast['Kabupaten'] == selected_kab]
-st.write("Selected Kabupaten:", selected_kab)
-st.write("Filtered Data:", data_kab)
-st.write("Columns:", data_kab.columns)
+df_prediksi = load_data()
 
-# Plot
-fig = px.line(data_kab, x='Tahun', y='Prediksi_IPM', title=f'Prediksi IPM {selected_kab} (2025 2030)', markers=True)
+# === Dropdown kabupaten/kota ===
+kabupaten_list = sorted(df_prediksi["Kabupaten"].unique())
+selected_kab = st.selectbox("Pilih Kabupaten/Kota", kabupaten_list)
+
+# === Filter berdasarkan pilihan kabupaten ===
+data_kab = df_prediksi[df_prediksi["Kabupaten"] == selected_kab]
+
+# === Tampilkan data prediksi dalam bentuk tabel ===
+st.subheader(f"📄 Data Prediksi IPM: {selected_kab}")
+st.dataframe(data_kab, use_container_width=True)
+
+# === Ubah ke format long untuk plot ===
+data_long = data_kab.melt(id_vars='Kabupaten', var_name='Tahun', value_name='Prediksi_IPM')
+data_long['Tahun'] = data_long['Tahun'].str.replace('Prediksi_', '').astype(int)
+
+# === Visualisasi garis prediksi ===
+st.subheader(f"📈 Visualisasi Prediksi IPM 2025 2030: {selected_kab}")
+fig = px.line(
+    data_long,
+    x='Tahun',
+    y='Prediksi_IPM',
+    title=f'Prediksi IPM {selected_kab} (2025 2030)',
+    markers=True,
+    labels={'Tahun': 'Tahun', 'Prediksi_IPM': 'IPM'}
+)
 st.plotly_chart(fig, use_container_width=True)
-
-# Tampilkan data
-st.subheader("Data Prediksi")
-st.dataframe(data_kab)
