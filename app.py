@@ -129,20 +129,22 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 
-
 # ----------------------
 # Load model dan data
 # ----------------------
 @st.cache_resource
 def load_models_and_data():
+    # This part correctly loads the arima_models
     with open("arima_models.pkl", "rb") as f:
         arima_models = pickle.load(f)
 
+    # This part loads the dataframe
     df_timeseries = pd.read_csv("df_timeseries.csv", index_col=0)
     df_timeseries.index = pd.to_datetime(df_timeseries.index)
-    df_timeseries.index.freq = 'YS'
+    df_timeseries.index.freq = 'YS' # Assuming 'YS' is correct for Year Start frequency
     return arima_models, df_timeseries
 
+# Now call the function to load the data
 arima_models, df_timeseries = load_models_and_data()
 
 # ----------------------
@@ -151,42 +153,57 @@ arima_models, df_timeseries = load_models_and_data()
 def forecast_arima_future_smooth(arima_models, df_timeseries, years_ahead=6):
     future_forecasts = {}
     last_year_dt = df_timeseries.index.max()
+    # Ensure future_years_index starts *after* the last historical year if you only want future dates
+    # Or include the last year if you want a smooth transition point in the forecast plot
+    # The current code includes the last historical year in future_years_index and combined_predictions
     future_years_index = pd.date_range(start=last_year_dt, periods=years_ahead + 1, freq='YS')
 
     for kabupaten, model in arima_models.items():
         try:
+            # Get the last historical value for the smooth transition
             last_historical_value = df_timeseries[kabupaten].iloc[-1]
+
+            # Get the forecast from the loaded model
             forecast_result = model.get_forecast(steps=years_ahead)
             predicted_values_future = forecast_result.predicted_mean
-            combined_predictions = pd.Series([last_historical_value])._append(predicted_values_future)
-            combined_predictions.index = future_years_index
+
+            # Combine the last historical value and the future predictions
+            # Use pd.concat instead of the deprecated _append
+            combined_predictions = pd.concat([pd.Series([last_historical_value]), predicted_values_future])
+            combined_predictions.index = future_years_index # Assign the correct future index
             future_forecasts[kabupaten] = combined_predictions
         except Exception as e:
+            # Handle cases where forecasting might fail for a specific kabupaten
+            print(f"Error forecasting for {kabupaten}: {e}") # Optional: print error for debugging
             future_forecasts[kabupaten] = pd.Series([np.nan]*(years_ahead + 1), index=future_years_index)
     return pd.DataFrame(future_forecasts)
 
 forecast_df_smooth = forecast_arima_future_smooth(arima_models, df_timeseries, years_ahead=6)
 
+
 # ----------------------
 # Streamlit UI
 # ----------------------
+
 st.title("📈 Prediksi IPM Kabupaten/Kota di Indonesia (ARIMA)")
 kabupaten_list = df_timeseries.columns.tolist()
 kabupaten = st.selectbox("Pilih Kabupaten/Kota:", kabupaten_list)
 
 if kabupaten in df_timeseries.columns:
-    plt.figure(figsize=(10, 5))
-    plt.plot(df_timeseries.index, df_timeseries[kabupaten], label='Historical', color='blue', marker='.')
-    plt.plot(forecast_df_smooth.index, forecast_df_smooth[kabupaten], label='Forecast (2025–2030)', linestyle='--', color='red', marker='o')
+    fig, ax = plt.subplots(figsize=(10, 5)) # Use object-oriented matplotlib approach
+    ax.plot(df_timeseries.index, df_timeseries[kabupaten], label='Historical', color='blue', marker='.')
+    ax.plot(forecast_df_smooth.index, forecast_df_smooth[kabupaten], label='Forecast (2025–2030)', linestyle='--', color='red', marker='o')
 
-    plt.title(f"Forecast ARIMA untuk {kabupaten}")
-    plt.xlabel("Tahun")
-    plt.ylabel("Nilai")
-    plt.ylim(0, 100)
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
-    plt.gca().xaxis.set_major_locator(mdates.YearLocator(1))
-    plt.grid(True)
-    plt.legend()
-    st.pyplot(plt.gcf())
+    ax.set_title(f"Forecast ARIMA untuk {kabupaten}")
+    ax.set_xlabel("Tahun")
+    ax.set_ylabel("Nilai")
+    ax.set_ylim(0, 100) # Set appropriate y-limits
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+    ax.xaxis.set_major_locator(mdates.YearLocator(1)) # Ensure every year is a major tick
+    plt.xticks(rotation=45) # Rotate labels for better readability
+    plt.tight_layout() # Adjust layout to prevent labels overlapping
+    ax.grid(True)
+    ax.legend()
+    st.pyplot(fig) # Pass the figure object to st.pyplot
 else:
     st.warning(f"Data untuk {kabupaten} tidak ditemukan.")
