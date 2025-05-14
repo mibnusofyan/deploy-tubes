@@ -1,5 +1,3 @@
-import pickle
-
 import joblib
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -133,32 +131,11 @@ st.plotly_chart(fig, use_container_width=True)
 # ----------------------
 @st.cache_resource
 def load_models_and_data():
-    # This part correctly loads the arima_models from the pickle file
-    try:
-        with open("arima_models.pkl", "rb") as f:
-            arima_models = pickle.load(f)
-    except FileNotFoundError:
-        st.error("Error: 'arima_models.pkl' not found. Make sure the model file is in the correct directory.")
-        st.stop() # Stop the app if the model file is missing
-    except Exception as e:
-        st.error(f"Error loading 'arima_models.pkl': {e}")
-        st.stop()
+    arima_models = joblib.load("arima_models.pkl")
 
-    # This part loads the dataframe from the CSV file
-    try:
-        df_timeseries = pd.read_csv("df_timeseries.csv", index_col=0)
-        df_timeseries.index = pd.to_datetime(df_timeseries.index)
-        # Ensure the frequency is set correctly. 'YS' is Year Start.
-        # If your data is yearly points, 'YS' is appropriate.
-        df_timeseries.index.freq = 'YS'
-    except FileNotFoundError:
-         st.error("Error: 'df_timeseries.csv' not found. Make sure the data file is in the correct directory.")
-         st.stop() # Stop the app if the data file is missing
-    except Exception as e:
-        st.error(f"Error loading 'df_timeseries.csv': {e}")
-        st.stop()
-
-
+    df_timeseries = pd.read_csv("df_timeseries.csv", index_col=0)
+    df_timeseries.index = pd.to_datetime(df_timeseries.index)
+    df_timeseries.index.freq = 'YS'
     return arima_models, df_timeseries
 
 # Now call the function to load the data and models for ARIMA
