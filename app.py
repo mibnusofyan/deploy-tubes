@@ -179,7 +179,7 @@ if kabupaten in df_timeseries.columns:
     plt.plot(df_timeseries.index, df_timeseries[kabupaten], label='Historical', color='blue', marker='.')
     plt.plot(forecast_df_smooth.index, forecast_df_smooth[kabupaten], label='Forecast (2025–2030)', linestyle='--', color='red', marker='o')
 
-    plt.title(f"Forecast ARIMA (Smooth) untuk {kabupaten}")
+    plt.title(f"Forecast ARIMA untuk {kabupaten}")
     plt.xlabel("Tahun")
     plt.ylabel("Nilai")
     plt.ylim(0, 100)
