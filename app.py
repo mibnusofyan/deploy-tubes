@@ -135,6 +135,8 @@ st.plotly_chart(fig, use_container_width=True)
 # ----------------------
 @st.cache_resource
 def load_models_and_data():
+    with open("arima_models.pkl", "wb") as f:
+        pickle.dump(arima_models, f)
     with open("arima_models.pkl", "rb") as f:
         arima_models = pickle.load(f)
 
