@@ -1,4 +1,7 @@
+import pickle
+
 import joblib
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -122,3 +125,68 @@ fig = px.line(
     labels={'Tahun': 'Tahun', 'Prediksi_IPM': 'Nilai IPM'}
 )
 st.plotly_chart(fig, use_container_width=True)
+
+
+
+
+
+# ----------------------
+# Load model dan data
+# ----------------------
+@st.cache_resource
+def load_models_and_data():
+    with open("arima_models.pkl", "rb") as f:
+        arima_models = pickle.load(f)
+
+    df_timeseries = pd.read_csv("df_timeseries.csv", index_col=0)
+    df_timeseries.index = pd.to_datetime(df_timeseries.index)
+    df_timeseries.index.freq = 'YS'
+    return arima_models, df_timeseries
+
+arima_models, df_timeseries = load_models_and_data()
+
+# ----------------------
+# Forecast function
+# ----------------------
+def forecast_arima_future_smooth(arima_models, df_timeseries, years_ahead=6):
+    future_forecasts = {}
+    last_year_dt = df_timeseries.index.max()
+    future_years_index = pd.date_range(start=last_year_dt, periods=years_ahead + 1, freq='YS')
+
+    for kabupaten, model in arima_models.items():
+        try:
+            last_historical_value = df_timeseries[kabupaten].iloc[-1]
+            forecast_result = model.get_forecast(steps=years_ahead)
+            predicted_values_future = forecast_result.predicted_mean
+            combined_predictions = pd.Series([last_historical_value])._append(predicted_values_future)
+            combined_predictions.index = future_years_index
+            future_forecasts[kabupaten] = combined_predictions
+        except Exception as e:
+            future_forecasts[kabupaten] = pd.Series([np.nan]*(years_ahead + 1), index=future_years_index)
+    return pd.DataFrame(future_forecasts)
+
+forecast_df_smooth = forecast_arima_future_smooth(arima_models, df_timeseries, years_ahead=6)
+
+# ----------------------
+# Streamlit UI
+# ----------------------
+st.title("📈 Prediksi IPM Kabupaten/Kota di Jawa Barat (ARIMA)")
+kabupaten_list = df_timeseries.columns.tolist()
+kabupaten = st.selectbox("Pilih Kabupaten/Kota:", kabupaten_list)
+
+if kabupaten in df_timeseries.columns:
+    plt.figure(figsize=(10, 5))
+    plt.plot(df_timeseries.index, df_timeseries[kabupaten], label='Historical', color='blue', marker='.')
+    plt.plot(forecast_df_smooth.index, forecast_df_smooth[kabupaten], label='Forecast (2025–2030)', linestyle='--', color='red', marker='o')
+
+    plt.title(f"Forecast ARIMA (Smooth) untuk {kabupaten}")
+    plt.xlabel("Tahun")
+    plt.ylabel("Nilai")
+    plt.ylim(0, 100)
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+    plt.gca().xaxis.set_major_locator(mdates.YearLocator(1))
+    plt.grid(True)
+    plt.legend()
+    st.pyplot(plt.gcf())
+else:
+    st.warning(f"Data untuk {kabupaten} tidak ditemukan.")
