@@ -170,7 +170,7 @@ forecast_df_smooth = forecast_arima_future_smooth(arima_models, df_timeseries, y
 # ----------------------
 # Streamlit UI
 # ----------------------
-st.title("📈 Prediksi IPM Kabupaten/Kota di Jawa Barat (ARIMA)")
+st.title("📈 Prediksi IPM Kabupaten/Kota di Indonesia (ARIMA)")
 kabupaten_list = df_timeseries.columns.tolist()
 kabupaten = st.selectbox("Pilih Kabupaten/Kota:", kabupaten_list)
 
