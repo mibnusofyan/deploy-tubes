@@ -8,4 +8,4 @@ matplotlib
 joblib
 openpyxl
 plotly
-pickle
+statsmodels
