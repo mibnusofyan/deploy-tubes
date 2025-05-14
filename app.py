@@ -41,7 +41,7 @@ if submit:
 st.markdown("---")
 st.markdown("## 🔍 Analisis Faktor Dominan per Daerah")
 
-selected_city = st.selectbox("Pilih Kabupaten/Kota:", shap_df['Kabupaten/Kota'].unique())
+selected_city = st.selectbox("Pilih Kabupaten/Kota:", shap_df['Kabupaten/Kota'].unique(), key="shap_kab_select")
 city_data = shap_df[shap_df['Kabupaten/Kota'] == selected_city].iloc[0]
 
 st.write(f"**Fitur Dominan:** {city_data['Fitur Dominan']}")
@@ -80,7 +80,7 @@ if df_prediksi.empty or 'Kabupaten' not in df_prediksi.columns:
 
 # === Dropdown kabupaten ===
 kabupaten_list = sorted(df_prediksi["Kabupaten"].dropna().unique())
-selected_kab = st.selectbox("Pilih Kabupaten/Kota", kabupaten_list)
+selected_kab = st.selectbox("Pilih Kabupaten/Kota", kabupaten_list, key="forecast_kabupaten_select")
 
 # === Filter dan validasi data kabupaten terpilih ===
 data_kab = df_prediksi[df_prediksi["Kabupaten"] == selected_kab]
@@ -181,7 +181,7 @@ forecast_df_smooth = forecast_arima_future_smooth(arima_models, df_timeseries, y
 
 st.title("📈 Prediksi IPM Kabupaten/Kota di Indonesia (ARIMA)")
 kabupaten_list = df_timeseries.columns.tolist()
-kabupaten = st.selectbox("Pilih Kabupaten/Kota:", kabupaten_list)
+kabupaten = st.selectbox("Pilih Kabupaten/Kota:", kabupaten_list, key="arima_kab_select")
 
 if kabupaten in df_timeseries.columns:
     fig, ax = plt.subplots(figsize=(10, 5)) # Use object-oriented matplotlib approach
